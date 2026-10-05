@@ -47,23 +47,23 @@ class Mastermind
       @guessing_holes.print_board
 
       puts "Make your choice from the list of pegs: "
-      @pegs.each { |peg| p peg.color }
+      puts @pegs.map(&:color).join(', ')
       
       get_guesses
       
       @guessing_holes.insert_pegs(@guesses)
       hints = @code_maker.get_hints(@guesses)
-      p hints
-      p @code_maker.secret_code
-
+      puts hints.positions.map(&:color).join(', ')
+      
       if @code_maker.solution_found
         puts "You won!"
+        p @code_maker.secret_code
         @code_maker.clear_hints
         return
       end
-      clear_guesses
       @code_maker.clear_hints
     end
+    p @code_maker.secret_code
     puts "You lost!"
   end
 end

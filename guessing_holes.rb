@@ -15,7 +15,7 @@ class GuessingHoles
 
   def print_board
     @current_row.times do |i|
-      p @positions[i]
+      puts @positions[i].map(&:color).join(' | ')
     end
   end
 
