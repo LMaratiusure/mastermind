@@ -13,11 +13,7 @@ class CodeMaker
   end
 
   def make_code(pegs)
-    4.times do |i|
-      random_number = @random.rand(5)
-      @pegs[i] = pegs[random_number]
-    end
-    @secret_code.positions = @pegs
+    @secret_code.positions = Array.new(4) { pegs.sample }
   end
 
   def get_hints(guesses)
