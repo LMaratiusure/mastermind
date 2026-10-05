@@ -1,8 +1,9 @@
 require_relative 'peg'
 class GuessingHoles
+  BOARD_SIZE = 12
   attr_reader :current_row
   def initialize
-    @positions = Array.new(12) {[1,2,3,4]}
+    @positions = Array.new(BOARD_SIZE) {[1,2,3,4]}
     @current_row = 0
   end
 

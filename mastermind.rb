@@ -3,10 +3,11 @@ require_relative 'code_breaker'
 require_relative 'guessing_holes'
 require_relative 'hinting_holes'
 require_relative 'peg'
-require_relative 'secret_code'
+require_relative 'secret_code_holes'
 
 class Mastermind
   COLORS = ["Red", "Pink", "Orange", "Yellow", "Green", "Blue", "Purple", "Brown", "Gray", "Gold", "Silver"]
+  MAX_TURNS = 12
 
   def initialize
     @code_maker = CodeMaker.new
@@ -18,7 +19,7 @@ class Mastermind
   end
 
   def make_pegs(num)
-    amount = num < 11 ? num : 11
+    amount = num < COLORS.length ? num : COLORS.length
     amount.times do |i|
       @pegs.push(Peg.new(COLORS[i]))
     end
@@ -43,19 +44,22 @@ class Mastermind
     make_pegs(6)
     @code_maker.make_code(@pegs)
 
-    12.times do 
+    MAX_TURNS.times do |index|
       @guessing_holes.print_board
 
+      puts "--------------------------------------"
       puts "Make your choice from the list of pegs: "
       puts @pegs.map(&:color).join(', ')
       
       get_guesses
       
+      p "Round #{index + 1} hints:"
       @guessing_holes.insert_pegs(@guesses)
       hints = @code_maker.get_hints(@guesses)
       puts hints.positions.map(&:color).join(', ')
+      puts "----------------"
       
-      if @code_maker.solution_found
+      if @code_maker.solution_found?
         puts "You won!"
         p @code_maker.secret_code
         @code_maker.clear_hints

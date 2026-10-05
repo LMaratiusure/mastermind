@@ -1,8 +1,9 @@
 require_relative 'peg'
-require_relative 'secret_code'
+require_relative 'secret_code_holes'
 require_relative 'hinting_holes'
 
 class CodeMaker
+  CODE_LENGTH = 4
   attr_reader :secret_code, :hints
 
   def initialize
@@ -13,13 +14,13 @@ class CodeMaker
   end
 
   def make_code(pegs)
-    @secret_code.positions = Array.new(4) { pegs.sample }
+    @secret_code.positions = Array.new(CODE_LENGTH) { pegs.sample }
   end
 
   def get_hints(guesses)
     # a hash with colors as a key and positions in an array as a value
-    secret = get_colors_positions(secret_code.positions)
-    break_code = get_colors_positions(guesses)
+    secret = color_positions(secret_code.positions)
+    break_code = color_positions(guesses)
 
     break_code.each do |color, value|
       if secret.include?(color)
@@ -38,17 +39,13 @@ class CodeMaker
     @hints.clear
   end
 
-  def solution_found
-    count = 0
-    hints.positions.each do |peg|
-      count += 1 unless peg.color != 'black'
-    end
-    count == 4
+  def solution_found?
+    hints.positions.count { |peg| peg.color == 'black' } == CODE_LENGTH
   end
 
   private
 
-  def get_colors_positions(code)
+  def color_positions(code)
     color_positions = Hash.new { |hash, color| hash[color] = [] }
     code.each_with_index do |peg, index|
       color_positions[peg.color.downcase] << index
