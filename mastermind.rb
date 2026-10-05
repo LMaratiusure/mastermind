@@ -25,22 +25,18 @@ class Mastermind
   end
 
   def get_guesses
-    4.times do |i|
-      puts "Color #{i + 1}: "
-      color = gets.chomp
+    allowed_colors = @pegs.map { |peg| peg.color.downcase }
 
-      puts "Hole number: "
-      hole_number = gets.to_i
+    @guesses = Array.new(4) do |index|
+      loop do
+        puts "Color for hole #{index + 1}:"
+        color = gets.chomp.strip.downcase
 
-      chosen_peg = Peg.new(color)
-      @guesses[hole_number - 1] = chosen_peg
+        break Peg.new(color) if allowed_colors.include?(color)
 
-      p @guesses
+        puts "Please choose a color from the list."
+      end
     end
-  end
-
-  def clear_guesses
-    @guesses.clear
   end
 
   def play
