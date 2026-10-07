@@ -1,14 +1,14 @@
 require_relative 'peg'
+require_relative 'config'
 class GuessingHoles
-  BOARD_SIZE = 12
   attr_reader :current_row
   def initialize
-    @positions = Array.new(BOARD_SIZE) {[1,2,3,4]}
+    @positions = Array.new(Config::MAX_TURNS) {Array.new(Config::CODE_LENGTH)}
     @current_row = 0
   end
 
   def insert_pegs(pegs)
-    return nil unless pegs.length == 4
+    return nil unless pegs.length == Config::CODE_LENGTH
 
     @positions[current_row] = pegs
     @current_row += 1

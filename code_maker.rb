@@ -1,8 +1,8 @@
 require_relative 'peg'
 require_relative 'secret_code_holes'
+require_relative 'config'
 
 class CodeMaker
-  CODE_LENGTH = 4
   attr_reader :secret_code
 
   def initialize
@@ -10,7 +10,7 @@ class CodeMaker
   end
 
   def make_code(pegs)
-    @secret_code.positions = Array.new(CODE_LENGTH) { pegs.sample }
+    @secret_code.positions = Array.new(Config::CODE_LENGTH) { pegs.sample }
   end
 
   def hints_for(guesses)
@@ -24,7 +24,7 @@ class CodeMaker
   end
 
   def solution_found?(guesses)
-    hints_for(guesses)[:black] == CODE_LENGTH
+    hints_for(guesses)[:black] == Config::CODE_LENGTH
   end
   
 end

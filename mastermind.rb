@@ -2,29 +2,28 @@ require_relative 'code_maker'
 require_relative 'guessing_holes'
 require_relative 'peg'
 require_relative 'secret_code_holes'
+require_relative 'config'
 
 class Mastermind
-  COLORS = ["Red", "Pink", "Orange", "Yellow", "Green", "Blue", "Purple", "Brown", "Gray", "Gold", "Silver"]
-  MAX_TURNS = 12
 
   def initialize
     @code_maker = CodeMaker.new
     @guessing_holes = GuessingHoles.new
     @pegs = []
-    @guesses = Array.new(4)
+    @guesses = Array.new(Config::CODE_LENGTH)
   end
 
   def make_pegs(num)
-    amount = num < COLORS.length ? num : COLORS.length
+    amount = num < Config::COLORS.length ? num : Config::COLORS.length
     amount.times do |i|
-      @pegs.push(Peg.new(COLORS[i]))
+      @pegs.push(Peg.new(Config::COLORS[i]))
     end
   end
 
   def get_guesses
     allowed_colors = @pegs.map { |peg| peg.color.downcase }
 
-    @guesses = Array.new(4) do |index|
+    @guesses = Array.new(Config::CODE_LENGTH) do |index|
       loop do
         puts "Color for hole #{index + 1}:"
         color = gets&.strip&.downcase
@@ -44,15 +43,15 @@ class Mastermind
     make_pegs(6)
     @code_maker.make_code(@pegs)
 
-    MAX_TURNS.times do |index|
+    Config::MAX_TURNS.times do |index|
       @guessing_holes.print_board
 
-      puts "Make your choice from the list of pegs: "
+      puts "\nMake your choice from the list of pegs: "
       puts @pegs.map(&:color).join(', ')
       
       get_guesses
       
-      puts "Round #{index + 1} hints:"
+      puts "\nRound #{index + 1} hints:"
       @guessing_holes.insert_pegs(@guesses)
 
       hints = @code_maker.hints_for(@guesses)
