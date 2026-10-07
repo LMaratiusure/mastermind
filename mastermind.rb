@@ -31,7 +31,11 @@ class Mastermind
     @guesses = Array.new(4) do |index|
       loop do
         puts "Color for hole #{index + 1}:"
-        color = gets.chomp.strip.downcase
+        color = gets&.strip&.downcase
+        if color.nil?
+          puts "\nGoodbye!"
+          exit
+        end
 
         break Peg.new(color) if allowed_colors.include?(color)
 
@@ -53,7 +57,7 @@ class Mastermind
       
       get_guesses
       
-      p "Round #{index + 1} hints:"
+      puts "Round #{index + 1} hints:"
       @guessing_holes.insert_pegs(@guesses)
       hints = @code_maker.get_hints(@guesses)
       puts hints.positions.map(&:color).join(', ')
@@ -61,13 +65,13 @@ class Mastermind
       
       if @code_maker.solution_found?
         puts "You won!"
-        p @code_maker.secret_code
+        puts @code_maker.secret_code.positions.map(&:color).join(' | ')
         @code_maker.clear_hints
         return
       end
       @code_maker.clear_hints
     end
-    p @code_maker.secret_code
+    puts @code_maker.secret_code.positions.map(&:color).join(' | ')
     puts "You lost!"
   end
 end
