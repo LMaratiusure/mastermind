@@ -3,20 +3,25 @@ require_relative 'config'
 class GuessingHoles
   attr_reader :current_row
   def initialize
-    @positions = Array.new(Config::MAX_TURNS) {Array.new(Config::CODE_LENGTH)}
-    @current_row = 0
+    @positions = []
   end
 
   def insert_pegs(pegs)
-    return nil unless pegs.length == Config::CODE_LENGTH
+    unless pegs.length == Config::CODE_LENGTH
+      raise ArgumentError,
+      "expected #{Config::CODE_LENGTH} pegs, got #{pegs.length}"
+    end
+    
+    @positions << pegs
+  end
 
-    @positions[current_row] = pegs
-    @current_row += 1
+  def current_row
+    @positions.length
   end
 
   def print_board
-    @current_row.times do |i|
-      puts @positions[i].map(&:color).join(' | ')
+    @positions.each do |row|
+      puts row.map(&:color).join(' | ')
     end
   end
 
