@@ -1,15 +1,12 @@
 require_relative 'peg'
 require_relative 'secret_code_holes'
-require_relative 'hinting_holes'
 
 class CodeMaker
   CODE_LENGTH = 4
   attr_reader :secret_code
 
   def initialize
-    @pegs = []
     @secret_code = SecretCodeHoles.new
-    @random = Random.new
   end
 
   def make_code(pegs)
