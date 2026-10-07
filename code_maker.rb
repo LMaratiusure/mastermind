@@ -18,20 +18,16 @@ class CodeMaker
   end
 
   def get_hints(guesses)
-    # a hash with colors as a key and positions in an array as a value
-    secret = color_positions(secret_code.positions)
-    break_code = color_positions(guesses)
+    secret = secret_code.positions.map { |peg| peg.color.downcase }
+    guess = guesses.map { |peg| peg.color.downcase }
 
-    break_code.each do |color, value|
-      if secret.include?(color)
-        secret[color].intersection(break_code[color]).length.times do
-          hints.positions.push(Peg.new('black'))
-        end
-        (secret[color] - break_code[color]).length.times do
-          hints.positions.push(Peg.new('white'))
-        end
-      end
-    end
+    blacks = secret.zip(guess).count { |s, g| s == g }
+    common = secret.uniq.sum { |color| [secret.count(color), guess.count(color)].min }
+    whites = common - blacks
+
+    blacks.times { hints.positions.push(Peg.new('black'))}
+    whites.times { hints.positions.push(Peg.new('white'))}
+
     hints
   end
 
@@ -41,16 +37,6 @@ class CodeMaker
 
   def solution_found?
     hints.positions.count { |peg| peg.color == 'black' } == CODE_LENGTH
-  end
-
-  private
-
-  def color_positions(code)
-    color_positions = Hash.new { |hash, color| hash[color] = [] }
-    code.each_with_index do |peg, index|
-      color_positions[peg.color.downcase] << index
-    end
-    color_positions
   end
   
 end
