@@ -1,7 +1,5 @@
 require_relative 'code_maker'
-require_relative 'code_breaker'
 require_relative 'guessing_holes'
-require_relative 'hinting_holes'
 require_relative 'peg'
 require_relative 'secret_code_holes'
 
@@ -11,9 +9,7 @@ class Mastermind
 
   def initialize
     @code_maker = CodeMaker.new
-    @code_breaker = CodeBreaker.new
     @guessing_holes = GuessingHoles.new
-    @hinting_holes = HintingHoles.new
     @pegs = []
     @guesses = Array.new(4)
   end
@@ -51,7 +47,6 @@ class Mastermind
     MAX_TURNS.times do |index|
       @guessing_holes.print_board
 
-      puts "--------------------------------------"
       puts "Make your choice from the list of pegs: "
       puts @pegs.map(&:color).join(', ')
       
@@ -59,17 +54,15 @@ class Mastermind
       
       puts "Round #{index + 1} hints:"
       @guessing_holes.insert_pegs(@guesses)
-      hints = @code_maker.get_hints(@guesses)
-      puts hints.positions.map(&:color).join(', ')
-      puts "----------------"
+
+      hints = @code_maker.hints_for(@guesses)
+      puts "Black: #{hints[:black]}, White: #{hints[:white]}"
       
-      if @code_maker.solution_found?
+      if @code_maker.solution_found?(@guesses)
         puts "You won!"
         puts @code_maker.secret_code.positions.map(&:color).join(' | ')
-        @code_maker.clear_hints
         return
       end
-      @code_maker.clear_hints
     end
     puts @code_maker.secret_code.positions.map(&:color).join(' | ')
     puts "You lost!"
