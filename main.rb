@@ -1,4 +1,7 @@
 require_relative 'mastermind'
 
-game = Mastermind.new
-game.play
+begin
+  Mastermind.new.play
+rescue Interrupt
+  puts "\nGoodBye"
+end
