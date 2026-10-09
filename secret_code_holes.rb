@@ -1,8 +1,11 @@
-require_relative 'config'
 class SecretCodeHoles
-  attr_accessor :positions
+  attr_reader :pegs
   
-  def initialize
-    @positions = Array.new(Config::CODE_LENGTH)
+  def initialize(pegs)
+    @pegs = pegs.freeze
+  end
+
+  def to_s
+    pegs.join(' | ')
   end
 end

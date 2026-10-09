@@ -5,26 +5,22 @@ require_relative 'config'
 class CodeMaker
   attr_reader :secret_code
 
-  def initialize
-    @secret_code = SecretCodeHoles.new
+  def initialize(pegs)
+    sampled_pegs = Array.new(Config::CODE_LENGTH) { pegs.sample }
+    @secret_code = SecretCodeHoles.new(sampled_pegs)
   end
 
-  def make_code(pegs)
-    @secret_code.positions = Array.new(Config::CODE_LENGTH) { pegs.sample }
-  end
-
-  def hints_for(guesses)
-    secret = secret_code.positions.map { |peg| peg.color.downcase }
-    guess = guesses.map { |peg| peg.color.downcase }
+  def hints_for(guess)
+    secret = secret_code.pegs
 
     blacks = secret.zip(guess).count { |s, g| s == g }
-    common = secret.uniq.sum { |color| [secret.count(color), guess.count(color)].min }
+    common = secret.uniq.sum { |peg| [secret.count(peg), guess.count(peg)].min }
 
     { black: blacks, white: common - blacks}
   end
 
-  def solution_found?(guesses)
-    hints_for(guesses)[:black] == Config::CODE_LENGTH
+  def solution_found?(guess)
+    guess == @secret_code.pegs
   end
   
 end

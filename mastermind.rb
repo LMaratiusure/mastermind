@@ -6,64 +6,59 @@ require_relative 'config'
 
 class Mastermind
 
-  def initialize
-    @code_maker = CodeMaker.new
+  def initialize(number_of_pegs)
+    @pegs = make_pegs(number_of_pegs)
+    @code_maker = CodeMaker.new(@pegs)
     @guessing_holes = GuessingHoles.new
-    @pegs = []
-    @guesses = Array.new(Config::CODE_LENGTH)
-  end
-
-  def make_pegs(num)
-    amount = num < Config::COLORS.length ? num : Config::COLORS.length
-    amount.times do |i|
-      @pegs.push(Peg.new(Config::COLORS[i]))
-    end
   end
 
   def get_guesses
-    allowed_colors = @pegs.map { |peg| peg.color.downcase }
-
-    @guesses = Array.new(Config::CODE_LENGTH) do |index|
+    guess = Array.new(Config::CODE_LENGTH) do |index|
       loop do
-        puts "Color for hole #{index + 1}:"
-        color = gets&.strip&.downcase
+        puts "Peg for hole #{index + 1}:"
+        color = gets&.strip
         if color.nil?
-          puts "\nGoodbye!"
+          puts "\nGoodBye!"
           exit
         end
 
-        break Peg.new(color) if allowed_colors.include?(color)
+        peg = Peg.new(color)
+        break peg if @pegs.include?(peg)
 
-        puts "Please choose a color from the list."
+        puts "Please choose a peg from the list."
       end
     end
+    guess
   end
 
   def play
-    make_pegs(6)
-    @code_maker.make_code(@pegs)
-
     Config::MAX_TURNS.times do |index|
       @guessing_holes.print_board
 
       puts "\nMake your choice from the list of pegs: "
       puts @pegs.map(&:color).join(', ')
       
-      get_guesses
+      guess = get_guesses
       
-      puts "\nRound #{index + 1} hints:"
-      @guessing_holes.insert_pegs(@guesses)
+      puts "\nRound #{index + 1}:"
 
-      hints = @code_maker.hints_for(@guesses)
-      puts "Black: #{hints[:black]}, White: #{hints[:white]}"
+      hints = @code_maker.hints_for(guess)
+      @guessing_holes.insert_pegs(guess, hints)
       
-      if @code_maker.solution_found?(@guesses)
+      if @code_maker.solution_found?(guess)
         puts "You won!"
-        puts @code_maker.secret_code.positions.map(&:color).join(' | ')
+        puts @code_maker.secret_code
         return
       end
     end
-    puts @code_maker.secret_code.positions.map(&:color).join(' | ')
+    puts @code_maker.secret_code
     puts "You lost!"
   end
+
+  private
+
+  def make_pegs(number_of_pegs)
+    Config::COLORS.first(number_of_pegs).map { |color| Peg.new(color) }
+  end
+
 end
