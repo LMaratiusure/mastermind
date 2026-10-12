@@ -5,54 +5,23 @@ require_relative 'secret_code_holes'
 require_relative 'config'
 
 class Mastermind
-
   def initialize(number_of_pegs)
     @pegs = make_pegs(number_of_pegs)
     @code_maker = CodeMaker.new(@pegs)
     @guessing_holes = GuessingHoles.new
   end
 
-  def get_guesses
-    guess = Array.new(Config::CODE_LENGTH) do |index|
-      loop do
-        puts "Peg for hole #{index + 1}:"
-        color = gets&.strip
-        if color.nil?
-          puts "\nGoodBye!"
-          exit
-        end
-
-        peg = Peg.new(color)
-        break peg if @pegs.include?(peg)
-
-        puts "Please choose a peg from the list."
-      end
-    end
-    guess
+  def read_guesses
+    Array.new(Config::CODE_LENGTH) { |index| read_peg(index + 1) }
   end
 
   def play
-    Config::MAX_TURNS.times do |index|
-      @guessing_holes.print_board
-
-      puts "\nMake your choice from the list of pegs: "
-      puts @pegs.map(&:color).join(', ')
-      
-      guess = get_guesses
-      
-      puts "\nRound #{index + 1}:"
-
-      hints = @code_maker.hints_for(guess)
-      @guessing_holes.insert_pegs(guess, hints)
-      
-      if @code_maker.solution_found?(guess)
-        puts "You won!"
-        puts @code_maker.secret_code
-        return
-      end
+    won = (1..Config::MAX_TURNS).any? do |round|
+      guess = play_round(round)
+      @code_maker.solution_found?(guess)
     end
     puts @code_maker.secret_code
-    puts "You lost!"
+    puts won ? 'You won!' : 'You lost!'
   end
 
   private
@@ -61,4 +30,32 @@ class Mastermind
     Config::COLORS.first(number_of_pegs).map { |color| Peg.new(color) }
   end
 
+  def play_round(round)
+    @guessing_holes.print_board
+    puts "\nMake your choice from the list of pegs: "
+    puts @pegs.map(&:color).join(', ')
+
+    guess = read_guesses
+    puts "\nRound #{round}:"
+    @guessing_holes.insert_pegs(guess, @code_maker.hints_for(guess))
+    guess
+  end
+
+  def read_peg(hole)
+    loop do
+      puts "Peg for hole #{hole}:"
+      peg = Peg.new(read_line)
+      return peg if @pegs.include?(peg)
+
+      puts 'Please choose a peg from the list.'
+    end
+  end
+
+  def read_line
+    line = gets
+    return line.strip if line
+
+    puts "\nGoodBye!"
+    exit
+  end
 end
